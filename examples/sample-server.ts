@@ -9,7 +9,7 @@ import {
   RewriteQuery,
   RewriteResponse,
   RewriteResponseHeader,
-  OverrideStatus, CreateResponse
+  OverrideStatus, CreateResponse, Break
 } from "../src/server/Rewriter";
 import {Endpoint} from "../src/server/Endpoint";
 import {JsonTemplate} from "../src/mock/ObjectUpdater";
@@ -21,7 +21,7 @@ import {generateObject} from "../src/mock/ObjectGenerator";
 
 const config: ServerOptions = {
   upstreamUrl: "localhost:3000",
-  port:8081,
+  port:8080,
   upstreams:{
     json:{
       upstreamUrl:"http://localhost:8000"
@@ -36,10 +36,18 @@ const server = new ProxyServer(config)
 server.addEndPoint("some","GET",{data:{abc:1}})
   .when(Query("test",1),
     OverrideResponse({test:1}),
-    // OverrideStatus(400)
+    Break
   )
   .when(Query("test",2),
-    OverrideResponse({test2:2})
+    OverrideResponse({test2:2}),
+    Break
+  )
+  .response(
+    RewriteResponse({
+      add:{
+        final:1
+      }
+    })
   )
 
 server.proxy("posts")

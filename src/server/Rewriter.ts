@@ -63,4 +63,9 @@ function lowerKey(obj:any,isLowerValue:boolean = false){
 }
 
 
+export const Break:Rewriter = (req,res,next)=>{
+  next()
+}
+
+
 export type CreateResponse = (req:ProxyRequest,res:ProxyResponse)=>(Promise<any> | any)

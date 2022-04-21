@@ -164,7 +164,6 @@ server.updateEndPoint("posts","GET")
 ### Generate Mock data
 ```js
 server.addEndPoint("users","GET")
-        .proxy()
         // generate mock data
         .response(
                 OverrideResponse(Template({
@@ -180,6 +179,36 @@ server.addEndPoint("users","GET")
         )
 
 ```
+this will generate the following response
+```json
+{
+    "status": "some_code",
+    "data": [
+        {
+            "id": 1,
+            "avatar": "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/870.jpg",
+            "firstName": "name 1",
+            "lastName": "Predovic",
+            "fullName": "firstname lastname"
+        },
+        {
+            "id": 1,
+            "avatar": "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/891.jpg",
+            "firstName": "name 2",
+            "lastName": "Rath",
+            "fullName": "Maurine Rath"
+        },
+        {
+            "id": 1,
+            "avatar": "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/357.jpg",
+            "firstName": "name 1",
+            "lastName": "Graham",
+            "fullName": "Edison Keebler"
+        }
+    ]
+}
+```
+
 ### Connect to multiple proxy servers
 
 ```js

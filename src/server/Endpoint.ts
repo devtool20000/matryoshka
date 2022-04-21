@@ -196,7 +196,7 @@ export class Endpoint implements MiddlewareFactory {
       // activate response according to conditional data
       for(let rewriteUnit of this.requestRewriters){
         if (await rewriteUnit.condition(req, res)) {
-          await rewriteUnit.rewriter(req, res)
+          await rewriteUnit.rewriter(req, res,next)
         }
       }
       return next()
@@ -216,7 +216,7 @@ export class Endpoint implements MiddlewareFactory {
         if (!(await rewriteUnit.condition(req, res))) {
           continue
         }
-        await rewriteUnit.rewriter(req, res)
+        await rewriteUnit.rewriter(req, res,next)
       }
       next()
     }
@@ -233,9 +233,9 @@ export class Endpoint implements MiddlewareFactory {
 }
 
 function _mergeSequentialRewriter(rewriters:Rewriter[]):Rewriter{
-  return async (req,res)=>{
+  return async (req,res,next)=>{
     for(let rewriter of rewriters){
-      await rewriter(req,res)
+      await rewriter(req,res,next)
     }
   }
 }
@@ -267,7 +267,7 @@ export function createDefaultProxyResponse(){
 
 const ALWAYS_TRUE = (req: express.Request, res:ProxyResponse, next:NextFunction)=> true
 
-export type Rewriter = (req:express.Request, res:ProxyResponse)=> (Promise<void> | void)
+export type Rewriter = (req:express.Request, res:ProxyResponse, next:NextFunction)=> (Promise<void> | void)
 export type RewriteCondition = RewriteConditionFn | ConditionMatcher
 export type RewriteConditionFn = (req:ProxyRequest, res:ProxyResponse)=>(Promise<boolean> | boolean)
 export type Plugin<T> = (host:T) =>void
