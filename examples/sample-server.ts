@@ -20,10 +20,11 @@ import {generateObject} from "../src/mock/ObjectGenerator";
 
 
 const config: ServerOptions = {
-  proxyUrl: "http://localhost:8000",
+  proxyUrl: "localhost:3000",
+  port:8081,
   proxies:{
     json:{
-      proxyUrl:"http://localhost:3000"
+      proxyUrl:"http://localhost:8000"
     }
   }
 }
@@ -41,9 +42,10 @@ server.addEndPoint("some","GET",{data:{abc:1}})
     OverrideResponse({test2:2})
   )
 
-server.proxy("posts").from("json")
-server.updateEndPoint("posts/:id","GET").from("json")
-  .renameTo("test/:id","GET")
+server.proxy("posts")
+  // .from("json")
+// server.updateEndPoint("posts/:id","GET").from("json")
+//   .renameTo("test/:id","GET")
 
 function PaginationTemplate(template:JsonTemplate):CreateResponse{
   return (req,res)=>{
