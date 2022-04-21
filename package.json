@@ -1,5 +1,5 @@
 {
-  "name": "matryoshka",
+  "name": "matryoshka-server",
   "version": "0.1.1",
   "description": "",
   "main": "dist/index.js",
