@@ -1,0 +1,17 @@
+import { ConditionMatcher, ValidateMeta } from "./ConditionMatcher";
+export declare function Header(validate: ValidateMeta): ConditionMatcher;
+export declare function Header(name: string, value: any): ConditionMatcher;
+export declare function Query(validate: ValidateMeta): ConditionMatcher;
+export declare function Query(name: string, value: any): ConditionMatcher;
+export declare function Body(validate: ValidateMeta): ConditionMatcher;
+export declare function Body(name: string, value: any): ConditionMatcher;
+export declare function ResponseHeader(validate: ValidateMeta): ConditionMatcher;
+export declare function ResponseHeader(name: string, value: any): ConditionMatcher;
+export declare function Response(validate: ValidateMeta): ConditionMatcher;
+export declare function Response(name: string, value: any): ConditionMatcher;
+export declare const NotExist: (x: any) => boolean;
+export declare const Exist: (x: any) => any;
+export declare function LessThan(value: any): (x: any) => boolean;
+export declare function LessEqual(value: any): (x: any) => boolean;
+export declare function LargeEqual(value: any): (x: any) => boolean;
+export declare function LargeThan(value: any): (x: any) => boolean;
