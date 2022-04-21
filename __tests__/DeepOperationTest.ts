@@ -1,5 +1,6 @@
 import {deepGet, deepSet} from "../src/utils/DeepOperation";
 import {constantValues} from "../src/mock/MockGenerator";
+import {extractObject, From} from "../src/server/Rewriter";
 
 describe("test deep get",()=>{
   it('should get nested value', function () {
@@ -164,6 +165,121 @@ describe("test deep set",()=>{
       ]
     })
   });
+})
 
 
+describe("Test Extract Object",()=>{
+  it('should extract with string', function () {
+    const target = {
+      a:[1,2,3]
+    }
+    const result = extractObject(target,{
+      "b":"a"
+    })
+
+    expect(result).toStrictEqual({
+      b:[1,2,3]
+    })
+  });
+
+  it('should extract single field', function () {
+    const target = {
+      result_code:2003,
+      hits:{
+        data:[
+          {a:1},
+          {a:2},
+        ]
+      }
+    }
+    const result = extractObject(target,"hits.data")
+
+    expect(result).toStrictEqual([
+      {a:1},
+      {a:2},
+    ])
+  });
+
+  it('should extract single field with converter', function () {
+    const target = {
+      result_code:2003,
+      hits:{
+        data:[
+          {a:1},
+          {a:2},
+        ]
+      }
+    }
+    const result = extractObject(target,(data)=>data.hits.data)
+
+    expect(result).toStrictEqual([
+      {a:1},
+      {a:2},
+    ])
+  });
+
+  it('should extract with function', function () {
+    const target = {
+      a:[1,2,3]
+    }
+    const result = extractObject(target,{
+      "b":(data:any)=>data.a
+    })
+
+    expect(result).toStrictEqual({
+      b:[1,2,3]
+    })
+  });
+
+  it('should extract nested field', function () {
+    const target = {
+      result_code:2003,
+      hits:{
+        data:[
+          {a:1},
+          {a:2},
+        ]
+      }
+    }
+    const result = extractObject(target,{
+      "result":"result_code",
+      "data":"hits.data"
+    })
+
+    expect(result).toStrictEqual({
+      result:2003,
+      data:[
+        {a:1},
+        {a:2},
+      ]
+    })
+  });
+})
+
+describe("Test Extract Object with From",()=>{
+  it('should extract with converter', function () {
+    const target = {
+      a:[1,2,3]
+    }
+    const result = extractObject(target,{
+      "b":From("a",(x)=>x.map((y:any)=>y+1))
+    })
+
+    expect(result).toStrictEqual({
+      b:[2,3,4]
+    })
+  });
+
+  it('should extract with multiple converter', function () {
+    const target = {
+      a:[1,2,3]
+    }
+    const result = extractObject(target,{
+      "b":From("a",(x)=>x.map((y:any)=>y+1),(x)=>x.map((y:any)=>y+1))
+    })
+
+    expect(result).toStrictEqual({
+      b:[3,4,5]
+    })
+  });
 })

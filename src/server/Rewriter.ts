@@ -1,5 +1,7 @@
-import {ObjectUpdate, updateObject} from "../mock/ObjectUpdater";
+import {JsonTemplate, ObjectUpdate, updateObject} from "../mock/ObjectUpdater";
 import {ProxyRequest, ProxyResponse, Rewriter} from "./Endpoint";
+import {deepGet, deepSet} from "../utils/DeepOperation";
+import {flattenHierarchy} from "../utils/Flatten";
 
 
 export function RewriteResponse(updates:ObjectUpdate):Rewriter {
@@ -50,6 +52,48 @@ export function RewriteHeader(updates:ObjectUpdate):Rewriter {
   }
 }
 
+export function ExtractResponse(selector:string | Converter | JsonTemplate): Rewriter {
+  return (req,res)=>{
+    res.response.data = extractObject(res.response.data,selector)
+  }
+}
+
+export function From(selector:string, ...converters:Converter[]) : Converter{
+  return (obj:any) =>{
+    let value = deepGet(obj,selector)
+    for(let convertor of converters){
+      value = convertor(value)
+    }
+
+    return value
+  }
+}
+
+
+export function extractObject(obj:any,selector:string | Converter | JsonTemplate):any {
+
+  if(typeof selector === "function"){
+    return selector(obj)
+  }
+  else if(typeof selector === "string"){
+    return deepGet(obj,selector)
+  }
+  else {
+    const extractFns = flattenHierarchy<{path:string,value:(string | ((value:any)=>any))}>(selector)
+    const target = {}
+    for(let extract of extractFns){
+      if(typeof extract.value === "string"){
+        deepSet(target,extract.path,deepGet(obj,extract.value))
+      }
+      else {
+        deepSet(target,extract.path,extract.value(obj))
+      }
+    }
+
+    return target
+  }
+}
+
 function lowerKey(obj:any,isLowerValue:boolean = false){
   const result:any = {}
   for(let key of Object.keys(obj)){
@@ -69,3 +113,4 @@ export const Break:Rewriter = (req,res,next)=>{
 
 
 export type CreateResponse = (req:ProxyRequest,res:ProxyResponse)=>(Promise<any> | any)
+export type Converter = (value:any)=>any

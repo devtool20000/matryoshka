@@ -9,7 +9,7 @@ import {
   RewriteQuery,
   RewriteResponse,
   RewriteResponseHeader,
-  OverrideStatus, CreateResponse, Break
+  OverrideStatus, CreateResponse, Break, ExtractResponse, From
 } from "../src/server/Rewriter";
 import {Endpoint} from "../src/server/Endpoint";
 import {JsonTemplate} from "../src/mock/ObjectUpdater";
@@ -47,6 +47,27 @@ server.addEndPoint("some","GET",{data:{abc:1}})
       add:{
         final:1
       }
+    })
+  )
+
+server.addEndPoint("t2","GET")
+  .response(
+    OverrideResponse({
+      result_code:2003,
+      hits:{
+        data:[
+          {a:1},
+          {a:2},
+        ]
+      }
+    }),
+    ExtractResponse({
+      data: From("hits.data")
+    }),
+    RewriteResponse({
+     add:{
+       "data[].b":values(1,2)
+     }
     })
   )
 
