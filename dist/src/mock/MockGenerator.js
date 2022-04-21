@@ -1,11 +1,5 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.hasVariable = exports.GeneratorType = exports.values = exports.constantValues = exports.MockGenerator = void 0;
-const lodash_clonedeep_1 = __importDefault(require("lodash.clonedeep"));
-class MockGenerator {
+import clonedeep from 'lodash.clonedeep';
+export class MockGenerator {
     constructor(values = [], generateValueFactory = null) {
         this.values = [];
         this.values = values;
@@ -62,8 +56,7 @@ class MockGenerator {
         };
     }
 }
-exports.MockGenerator = MockGenerator;
-function constantValues(...values) {
+export function constantValues(...values) {
     if (values.length === 0) {
         throw new Error(`values can't be empty array`);
     }
@@ -76,8 +69,7 @@ function constantValues(...values) {
         return new MockGenerator(values, null).generatorFactory;
     }
 }
-exports.constantValues = constantValues;
-function values(...values) {
+export function values(...values) {
     if (values.length === 0) {
         throw new Error(`values can't be empty array`);
     }
@@ -88,7 +80,7 @@ function values(...values) {
             if (hasVariable(hardCodeValue)) {
                 // return replace variable values
                 const variableGeneratorFactory = (variables) => {
-                    const replacedHardCodeValues = (0, lodash_clonedeep_1.default)(hardCodeValues);
+                    const replacedHardCodeValues = clonedeep(hardCodeValues);
                     for (let variableName of Object.keys(variables)) {
                         const variableValue = variables[variableName];
                         for (let i = 0; i < replacedHardCodeValues.length; i++) {
@@ -103,7 +95,7 @@ function values(...values) {
                         return new MockGenerator(replacedHardCodeValues, null).generatorFactory;
                     }
                 };
-                variableGeneratorFactory.$type = exports.GeneratorType.variableGenerator;
+                variableGeneratorFactory.$type = GeneratorType.variableGenerator;
                 return variableGeneratorFactory;
             }
         }
@@ -115,12 +107,10 @@ function values(...values) {
         return new MockGenerator(hardCodeValues, null).generatorFactory;
     }
 }
-exports.values = values;
-exports.GeneratorType = {
+export const GeneratorType = {
     variableGenerator: "variable-generator"
 };
-function hasVariable(text) {
+export function hasVariable(text) {
     return text.indexOf("{{") !== -1 && text.indexOf("}}") !== -1;
 }
-exports.hasVariable = hasVariable;
 //# sourceMappingURL=MockGenerator.js.map

@@ -13,6 +13,9 @@ import {
   DEFAULT_UPSTREAM,
   createDefaultProxyResponse
 } from "./Endpoint";
+import portfinder from 'portfinder';
+
+
 
 
 
@@ -106,7 +109,10 @@ export class ProxyServer {
     this.createFinalResponse(app)
 
     // start proxy server
-    const port = this.config.port ?? 8080
+    const port = this.config.port ?? await portfinder.getPortPromise({
+      startPort:8080,
+      stopPort:9090
+    })
     this.startProxyServer(app,port)
 
   }

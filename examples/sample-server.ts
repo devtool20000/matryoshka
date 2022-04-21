@@ -21,7 +21,7 @@ import {generateObject} from "../src/mock/ObjectGenerator";
 
 const config: ServerOptions = {
   upstreamUrl: "localhost:3000",
-  port:8081,
+  port:8082,
   upstreams:{
     json:{
       upstreamUrl:"http://localhost:8000"

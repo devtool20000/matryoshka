@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Status = exports.not = exports.StructureConditionMatcher = exports.StatusCodeConditionMatcher = exports.OrConditionMatcher = exports.AndConditionMatcher = exports.NotConditionMatcher = exports.ConditionMatcher = void 0;
-const Flatten_1 = require("../utils/Flatten");
-const DeepOperation_1 = require("../utils/DeepOperation");
-class ConditionMatcher {
+import { flattenHierarchy } from "../utils/Flatten";
+import { deepGet } from "../utils/DeepOperation";
+export class ConditionMatcher {
     constructor(condition = undefined) {
         this.condition = condition;
     }
@@ -20,8 +17,7 @@ class ConditionMatcher {
         throw new Error("not implement");
     }
 }
-exports.ConditionMatcher = ConditionMatcher;
-class NotConditionMatcher extends ConditionMatcher {
+export class NotConditionMatcher extends ConditionMatcher {
     constructor(conditionalMatcher) {
         super();
         this.conditionalMatcher = conditionalMatcher;
@@ -30,8 +26,7 @@ class NotConditionMatcher extends ConditionMatcher {
         return !this.conditionalMatcher.evaluate(req, res);
     }
 }
-exports.NotConditionMatcher = NotConditionMatcher;
-class AndConditionMatcher extends ConditionMatcher {
+export class AndConditionMatcher extends ConditionMatcher {
     constructor(left, right) {
         super();
         this.left = left;
@@ -41,8 +36,7 @@ class AndConditionMatcher extends ConditionMatcher {
         return this.left.evaluate(req, res) && this.right.evaluate(req, res);
     }
 }
-exports.AndConditionMatcher = AndConditionMatcher;
-class OrConditionMatcher extends ConditionMatcher {
+export class OrConditionMatcher extends ConditionMatcher {
     constructor(left, right) {
         super();
         this.left = left;
@@ -52,8 +46,7 @@ class OrConditionMatcher extends ConditionMatcher {
         return this.left.evaluate(req, res) || this.right.evaluate(req, res);
     }
 }
-exports.OrConditionMatcher = OrConditionMatcher;
-class StatusCodeConditionMatcher extends ConditionMatcher {
+export class StatusCodeConditionMatcher extends ConditionMatcher {
     constructor(predicate) {
         super();
         this.predicate = predicate;
@@ -62,8 +55,7 @@ class StatusCodeConditionMatcher extends ConditionMatcher {
         return this.predicate(res.response.status);
     }
 }
-exports.StatusCodeConditionMatcher = StatusCodeConditionMatcher;
-class StructureConditionMatcher extends ConditionMatcher {
+export class StructureConditionMatcher extends ConditionMatcher {
     constructor(obj, validateMeta, equalFn = (value) => (x) => x === value) {
         super();
         this.obj = obj;
@@ -73,7 +65,7 @@ class StructureConditionMatcher extends ConditionMatcher {
         this._flattenValidateMeta();
     }
     _flattenValidateMeta() {
-        this.validateUnits = (0, Flatten_1.flattenHierarchy)(this.validateMeta);
+        this.validateUnits = flattenHierarchy(this.validateMeta);
         for (let validateUnit of this.validateUnits) {
             if (!(typeof validateUnit.value === "function")) {
                 const value = validateUnit.value;
@@ -83,24 +75,21 @@ class StructureConditionMatcher extends ConditionMatcher {
     }
     evaluate(req, res) {
         for (let validateUnit of this.validateUnits) {
-            if (!validateUnit.value((0, DeepOperation_1.deepGet)(this.obj(req, res), validateUnit.path))) {
+            if (!validateUnit.value(deepGet(this.obj(req, res), validateUnit.path))) {
                 return false;
             }
         }
         return true;
     }
 }
-exports.StructureConditionMatcher = StructureConditionMatcher;
-function not(conditionMatcher) {
+export function not(conditionMatcher) {
     return new NotConditionMatcher(conditionMatcher);
 }
-exports.not = not;
-function Status(code) {
+export function Status(code) {
     let predicate = code;
     if (typeof code === "number") {
         predicate = (_code) => _code === code;
     }
     return new StatusCodeConditionMatcher(predicate);
 }
-exports.Status = Status;
 //# sourceMappingURL=ConditionMatcher.js.map

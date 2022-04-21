@@ -1,18 +1,14 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.FakeExpr = exports.Fake = exports.setGlobalSeed = void 0;
-const faker_1 = require("@faker-js/faker");
-const DeepOperation_1 = require("../utils/DeepOperation");
+import { Faker, faker } from '@faker-js/faker';
+import { deepGet } from "../utils/DeepOperation";
 let globalFakerSeed = 123;
-function setGlobalSeed(value) {
+export function setGlobalSeed(value) {
     globalFakerSeed = value;
 }
-exports.setGlobalSeed = setGlobalSeed;
-function Fake(path, options = null) {
+export function Fake(path, options = null) {
     return () => {
         var _a;
-        const fakerInstance = new faker_1.Faker({ locales: faker_1.faker.locales });
-        const fakerFunction = (0, DeepOperation_1.deepGet)(fakerInstance, path);
+        const fakerInstance = new Faker({ locales: faker.locales });
+        const fakerFunction = deepGet(fakerInstance, path);
         if (typeof fakerFunction !== "function") {
             throw new Error(`can't find ${path} from faker`);
         }
@@ -26,11 +22,10 @@ function Fake(path, options = null) {
         };
     };
 }
-exports.Fake = Fake;
-function FakeExpr(expr, options = null) {
+export function FakeExpr(expr, options = null) {
     return () => {
         var _a;
-        const fakerInstance = new faker_1.Faker({ locales: faker_1.faker.locales });
+        const fakerInstance = new Faker({ locales: faker.locales });
         const fakerFunction = fakerInstance.fake;
         fakerInstance.seed((_a = options === null || options === void 0 ? void 0 : options.seed) !== null && _a !== void 0 ? _a : globalFakerSeed);
         if (options === null || options === void 0 ? void 0 : options.locale) {
@@ -41,5 +36,4 @@ function FakeExpr(expr, options = null) {
         };
     };
 }
-exports.FakeExpr = FakeExpr;
 //# sourceMappingURL=FakerField.js.map

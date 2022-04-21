@@ -1,15 +1,15 @@
 import cors, { CorsOptionsDelegate } from 'cors';
 import { HttpMethod, ResponseData, Endpoint } from "./Endpoint";
 export interface ServerOptions extends UpstreamServerOptions {
-    proxyUrl?: string;
+    upstreamUrl?: string;
     port?: number;
     cors?: cors.CorsOptions | CorsOptionsDelegate;
     apiSpec?: string;
     default?: ServerDefaultOptions;
-    proxies?: Record<string, UpstreamServerOptions>;
+    upstreams?: Record<string, UpstreamServerOptions>;
 }
 export interface UpstreamServerOptions {
-    proxyUrl?: string;
+    upstreamUrl?: string;
 }
 export interface ServerDefaultOptions {
     notFoundResponseData?: ResponseData;

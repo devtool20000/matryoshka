@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,13 +7,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DEFAULT_UPSTREAM = exports.createDefaultProxyResponse = exports.Endpoint = void 0;
-const lodash_clonedeep_1 = __importDefault(require("lodash.clonedeep"));
-class Endpoint {
+import clonedeep from 'lodash.clonedeep';
+export class Endpoint {
     constructor(path, method) {
         this.path = path;
         this.method = method;
@@ -29,7 +23,7 @@ class Endpoint {
             headers: DEFAULT_RESPONSE_HEADERS
         };
         this.isAfterProxy = false;
-        this._upStream = exports.DEFAULT_UPSTREAM;
+        this._upStream = DEFAULT_UPSTREAM;
     }
     request(...rewriters) {
         this.requestRewriters.push({
@@ -104,7 +98,7 @@ class Endpoint {
     remove(responseData = null) {
         this.isRemove = true;
         if (responseData) {
-            this.notFoundResponseData = (0, lodash_clonedeep_1.default)(responseData);
+            this.notFoundResponseData = clonedeep(responseData);
         }
         if (!this.notFoundResponseData.status) {
             this.notFoundResponseData.status = 404;
@@ -128,7 +122,7 @@ class Endpoint {
         app.use(_guardPath, (req, res, next) => {
             // for new Endpoint, we add a middleware to mark this request is new and don't need to call upstream server
             if (this.isNewEndpoint) {
-                req.earlyReturnResponse = (0, lodash_clonedeep_1.default)(this.newEndpointResponseData);
+                req.earlyReturnResponse = clonedeep(this.newEndpointResponseData);
                 req.isEarlyReturn = true; // Early return marks the req to return without call proxy
             }
             req.upStream = this._upStream;
@@ -195,7 +189,6 @@ class Endpoint {
         return this;
     }
 }
-exports.Endpoint = Endpoint;
 function _mergeSequentialRewriter(rewriters) {
     return (req, res) => __awaiter(this, void 0, void 0, function* () {
         for (let rewriter of rewriters) {
@@ -214,14 +207,13 @@ const DEFAULT_200_BODY = {
 const DEFAULT_RESPONSE_HEADERS = {
     "content-type": "application/json"
 };
-function createDefaultProxyResponse() {
+export function createDefaultProxyResponse() {
     return {
         status: 200,
         data: Object.assign(DEFAULT_200_BODY),
         headers: Object.assign(DEFAULT_RESPONSE_HEADERS)
     };
 }
-exports.createDefaultProxyResponse = createDefaultProxyResponse;
 const ALWAYS_TRUE = (req, res, next) => true;
-exports.DEFAULT_UPSTREAM = "default";
+export const DEFAULT_UPSTREAM = "default";
 //# sourceMappingURL=Endpoint.js.map

@@ -1,4 +1,4 @@
-const {ProxyServer} = require('../index')
+import {ProxyServer} from'../index'
 
 const server = new ProxyServer({
   upstreamUrl:"http://localhost:3000",
