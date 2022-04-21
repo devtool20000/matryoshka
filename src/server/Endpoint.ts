@@ -1,7 +1,7 @@
 import express, {NextFunction} from "express";
 import {AxiosResponse, AxiosResponseHeaders} from "axios";
 import {ConditionMatcher} from "./ConditionMatcher";
-import clonedeep from 'lodash/clonedeep';
+import clonedeep from 'lodash.clonedeep';
 
 
 export class Endpoint implements MiddlewareFactory {

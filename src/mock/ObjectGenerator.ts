@@ -1,6 +1,6 @@
 import {normalizeUpdateUnitValue, JsonTemplate, UpdateMetaValue, updateObject, UpdateUnit} from "./ObjectUpdater";
 import {flattenHierarchy} from "../utils/Flatten";
-import clonedeep from 'lodash/clonedeep';
+import clonedeep from 'lodash.clonedeep';
 import {deepSet} from "../utils/DeepOperation";
 
 

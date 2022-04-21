@@ -1,4 +1,4 @@
-import clonedeep from 'lodash/clonedeep';
+import clonedeep from 'lodash.clonedeep';
 
 
 export class MockGenerator<T> {

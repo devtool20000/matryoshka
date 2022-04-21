@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.hasVariable = exports.GeneratorType = exports.values = exports.constantValues = exports.MockGenerator = void 0;
-const clonedeep_1 = __importDefault(require("lodash/clonedeep"));
+const lodash_clonedeep_1 = __importDefault(require("lodash.clonedeep"));
 class MockGenerator {
     constructor(values = [], generateValueFactory = null) {
         this.values = [];
@@ -88,7 +88,7 @@ function values(...values) {
             if (hasVariable(hardCodeValue)) {
                 // return replace variable values
                 const variableGeneratorFactory = (variables) => {
-                    const replacedHardCodeValues = (0, clonedeep_1.default)(hardCodeValues);
+                    const replacedHardCodeValues = (0, lodash_clonedeep_1.default)(hardCodeValues);
                     for (let variableName of Object.keys(variables)) {
                         const variableValue = variables[variableName];
                         for (let i = 0; i < replacedHardCodeValues.length; i++) {

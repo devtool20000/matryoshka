@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateArray = exports.generateObject = void 0;
 const ObjectUpdater_1 = require("./ObjectUpdater");
 const Flatten_1 = require("../utils/Flatten");
-const clonedeep_1 = __importDefault(require("lodash/clonedeep"));
+const lodash_clonedeep_1 = __importDefault(require("lodash.clonedeep"));
 const DeepOperation_1 = require("../utils/DeepOperation");
 function generateObject(template, skip = 0, sizeMap = {}, variablesMap = {}) {
     let updateUnits = (0, Flatten_1.flattenHierarchy)(template);
@@ -33,7 +33,7 @@ function _replaceSizeVariables(updateUnits, size) {
     if (Object.keys(size).length === 0) {
         return updateUnits;
     }
-    const _updateUnits = (0, clonedeep_1.default)(updateUnits);
+    const _updateUnits = (0, lodash_clonedeep_1.default)(updateUnits);
     for (let unit of _updateUnits) {
         for (let variableName of Object.keys(size)) {
             const variableValue = size[variableName];

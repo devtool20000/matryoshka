@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DEFAULT_UPSTREAM = exports.createDefaultProxyResponse = exports.Endpoint = void 0;
-const clonedeep_1 = __importDefault(require("lodash/clonedeep"));
+const lodash_clonedeep_1 = __importDefault(require("lodash.clonedeep"));
 class Endpoint {
     constructor(path, method) {
         this.path = path;
@@ -104,7 +104,7 @@ class Endpoint {
     remove(responseData = null) {
         this.isRemove = true;
         if (responseData) {
-            this.notFoundResponseData = (0, clonedeep_1.default)(responseData);
+            this.notFoundResponseData = (0, lodash_clonedeep_1.default)(responseData);
         }
         if (!this.notFoundResponseData.status) {
             this.notFoundResponseData.status = 404;
@@ -128,7 +128,7 @@ class Endpoint {
         app.use(_guardPath, (req, res, next) => {
             // for new Endpoint, we add a middleware to mark this request is new and don't need to call upstream server
             if (this.isNewEndpoint) {
-                req.earlyReturnResponse = (0, clonedeep_1.default)(this.newEndpointResponseData);
+                req.earlyReturnResponse = (0, lodash_clonedeep_1.default)(this.newEndpointResponseData);
                 req.isEarlyReturn = true; // Early return marks the req to return without call proxy
             }
             req.upStream = this._upStream;
