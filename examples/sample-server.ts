@@ -20,11 +20,11 @@ import {generateObject} from "../src/mock/ObjectGenerator";
 
 
 const config: ServerOptions = {
-  proxyUrl: "localhost:3000",
+  upstreamUrl: "localhost:3000",
   port:8081,
-  proxies:{
+  upstreams:{
     json:{
-      proxyUrl:"http://localhost:8000"
+      upstreamUrl:"http://localhost:8000"
     }
   }
 }

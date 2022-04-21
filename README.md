@@ -15,7 +15,7 @@ Start the proxy server
 const {ProxyServer} = require('matryoshka-server')
 
 const server = new ProxyServer({
-  proxyUrl:"http://localhost:3000",
+  upstreamUrl:"http://localhost:3000",
   port:8080
 })
 

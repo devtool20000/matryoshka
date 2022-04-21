@@ -17,16 +17,16 @@ import {
 
 
 export interface ServerOptions extends UpstreamServerOptions{
-  proxyUrl?: string,
+  upstreamUrl?: string,
   port?: number,
   cors?:cors.CorsOptions | CorsOptionsDelegate,
   apiSpec?: string // can be file or url
   default?:ServerDefaultOptions
-  proxies?:Record<string,UpstreamServerOptions>
+  upstreams?:Record<string,UpstreamServerOptions>
 }
 
 export interface UpstreamServerOptions {
-  proxyUrl?: string,
+  upstreamUrl?: string,
   // default?:ServerDefaultOptions
 }
 
@@ -41,26 +41,26 @@ export class ProxyServer {
   private endpoints:MiddlewareFactory[] = []
 
   constructor(public config: ServerOptions) {
-    if(!config.proxies){
-      config.proxies = {}
+    if(!config.upstreams){
+      config.upstreams = {}
     }
-    config.proxies[DEFAULT_UPSTREAM] = config
+    config.upstreams[DEFAULT_UPSTREAM] = config
     this._validateConfig()
   }
 
   private _validateConfig(){
     // make sure all proxies has non-empty proxyUrl
-    for(let proxyName of Object.keys(this.config.proxies!)){
-      if(!this.config.proxies![proxyName].proxyUrl && proxyName !== DEFAULT_UPSTREAM){
+    for(let proxyName of Object.keys(this.config.upstreams!)){
+      if(!this.config.upstreams![proxyName].upstreamUrl && proxyName !== DEFAULT_UPSTREAM){
         throw new Error(`proxy ${proxyName} has empty proxyUrl`)
       }
-      const proxyUrl = this.config.proxies![proxyName].proxyUrl
+      const proxyUrl = this.config.upstreams![proxyName].upstreamUrl
 
       if(proxyUrl && proxyUrl.startsWith("localhost")){
         const completeProxyUrl = `http://${proxyUrl}`
-        this.config.proxies![proxyName].proxyUrl = completeProxyUrl
+        this.config.upstreams![proxyName].upstreamUrl = completeProxyUrl
         if(proxyName === DEFAULT_UPSTREAM){
-          this.config.proxyUrl = completeProxyUrl
+          this.config.upstreamUrl = completeProxyUrl
         }
       }
     }
@@ -160,7 +160,7 @@ export class ProxyServer {
         // call upstream server
 
         const upStream = req.upStream ?? DEFAULT_UPSTREAM
-        const upStreamBaseUrl = this.config.proxies![upStream].proxyUrl
+        const upStreamBaseUrl = this.config.upstreams![upStream].upstreamUrl
         if(!upStreamBaseUrl){
           throw new Error(`upStream: ${upStream} is has empty BaseUrl`)
         }
