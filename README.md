@@ -47,7 +47,7 @@ server.serve()
 
 ## Basic Functions
 
-### make change to existing endpoint
+### update/delete/create API Endpoints
 
 ```ts
 const {OverrideResponse, ProxyServer} = require('matryoshka-server')
@@ -57,15 +57,14 @@ const server = new ProxyServer({
    port:8080
 })
 
-// now when you call http://localhost:8080/new-posts
-// it will redirect the request to http://localhost:3000/posts
+// rename http://localhost:3000/posts => http://localhost:8080/new-posts
 server.proxy("posts")
         .renameTo("new-posts")
 
-// this will remove comments and return 404 when calling http://localhost:8080/comments
+// remove http://localhost:8080/comments (return 404)
 server.remove("comments")
 
-// this will add a new endpoint http://localhost:8080/new-endpoint for GET method and return {success:true}
+// create GET http://localhost:8080/new-endpoint (return {success:true})
 server.addEndPoint("new-endpoint","GET").response(
         OverrideResponse({
            success:true
@@ -162,6 +161,25 @@ server.updateEndPoint("posts","GET")
 
 ```
 
+### Generate Mock
+```js
+server.addEndPoint("users","GET")
+        .proxy()
+        // generate mock data
+        .response(
+                OverrideResponse(Template({
+                   status:"some_code", // add hard code value
+                   "data[+3]":{ // generate an array of length 3
+                      id:1,
+                      avatar:Fake("image.avatar"), // generate fake value from @faker-js
+                      firstName:values("name 1","name 2"), // generate fake value from hard value list
+                      lastName:Fake("name.lastName"),
+                      fullName:values("firstname lastname",FakeExpr("{{name.firstName}} {{name.lastName}}")) // combine hardcode value with @faker-js
+                   }
+                }))
+        )
+
+```
 ### Connect to multiple proxy servers
 
 ```js
