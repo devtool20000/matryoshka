@@ -23,7 +23,7 @@ Matryoshka consists of a single **Proxy API Gateway** + several of **Request Rew
 
 ## philosophy of Matryoshka
 
-### Declarative Request/Response Rewriter
+### Declarative API
 Mastryoshka server use [fluent interface](https://en.wikipedia.org/wiki/Fluent_interface) to create a declarative [DSL](https://en.wikipedia.org/wiki/Domain-specific_language) to 
 create the request/response rewrite logic. For instance, the following code try to rewrite the query parameters and add new fields in response under different status code
 The rewrite logic is self explained.
@@ -61,6 +61,11 @@ server.updateEndPoint("posts","GET")
 ```
 
 The Declarative API makes the rewrite logic transparent and you can also use it as an API contract with backend team.    
+
+```js
+// TODO: add generation logic here 
+```
+
 
 ### Out-of-box but not All-in-one
 Matryoshka server itself provides convenient methods Out-of-box to create mock data and declarative method for request/response rewrites. However, matryoshka is 
