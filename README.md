@@ -208,6 +208,85 @@ this will generate the following response
     ]
 }
 ```
+You can also use generate array with template
+```js
+server.addEndPoint("books","GET")
+  .proxy()
+  // generate mock data
+  .response(
+    OverrideResponse(TemplateArray({
+      id:values(1,2),
+      name:values("name1","name2")
+    },2))
+  )
+```
+this will generate
+```json
+[
+    {
+        "id": 1,
+        "name": "name1"
+    },
+    {
+        "id": 2,
+        "name": "name2"
+    }
+]
+```
+
+You can also use template to add new fields to existing API's response
+```js
+// use updateEndPoint to update existing API
+server.updateEndPoint("posts","GET")
+  .proxy()
+  // generate mock data
+  .response(
+    RewriteResponse({
+      add:{
+        "[]":{
+          newField:values(1,2,3),
+          "nestArray[+3]":{ // you can add array with item count 3
+            name:Fake("name.firstName") // add field can be nested
+          }
+        }
+      }
+    })
+  )
+```
+this will update 
+```json
+[
+    {
+        "id": 1,
+        "title": "json-server1",
+        "author": "typicode"
+    },
+    ...
+]
+```
+to
+```json
+[
+    {
+        "id": 1,
+        "title": "json-server1",
+        "author": "typicode",
+        "newField": 1,
+        "nestArray": [
+            {
+                "name": "Maurine"
+            },
+            {
+                "name": "Mervin"
+            },
+            {
+                "name": "Edison"
+            }
+        ]
+    },
+    ...
+]
+```
 
 ### Connect to multiple proxy servers
 
@@ -233,5 +312,8 @@ server.proxy("comments").from("server2") // specify the name of upstream server
 
 ...
 ```
+
+TODO: 
+[related projects](https://developers.amadeus.com/blog/helpful-tools-to-create-mock-servers) and differences 
 
 
