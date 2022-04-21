@@ -1,6 +1,6 @@
 import {deepGet, deepSet} from "../src/utils/DeepOperation";
 import {constantValues} from "../src/mock/MockGenerator";
-import {extractObject, From} from "../src/server/Rewriter";
+import {extractObject, From, OriginalResponse} from "../src/server/Rewriter";
 
 describe("test deep get",()=>{
   it('should get nested value', function () {
@@ -280,6 +280,20 @@ describe("Test Extract Object with From",()=>{
 
     expect(result).toStrictEqual({
       b:[3,4,5]
+    })
+  });
+
+  it('should add original object as a field', function () {
+    const target = {
+      a:[1,2,3]
+    }
+    const result = extractObject(target,{
+      "b":OriginalResponse
+    })
+    expect(result).toStrictEqual({
+      b:{
+        a:[1,2,3]
+      }
     })
   });
 })

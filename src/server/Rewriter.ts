@@ -69,6 +69,8 @@ export function From(selector:string, ...converters:Converter[]) : Converter{
   }
 }
 
+export const OriginalResponse = (obj:any)=>obj
+
 
 export function extractObject(obj:any,selector:string | Converter | JsonTemplate):any {
 
