@@ -141,7 +141,6 @@ server.updateEndPoint("posts","GET")
 ```js
 
 server.updateEndPoint("posts","GET")
-        // rewrite response only when status code is 200
         .proxy()
         // when status code is 200
         .when(Status(200),
