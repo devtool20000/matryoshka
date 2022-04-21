@@ -1,4 +1,5 @@
 import {Fake, FakeExpr} from "../src/mock/FakerField";
+import {FakeObject, values} from "../src/mock/MockGenerator";
 
 describe("Test fakerjs field",()=>{
   it('generate faker field', function () {
@@ -40,10 +41,22 @@ describe("Test fakerjs field",()=>{
   });
 })
 
-describe("test fakerjs expr",()=>{
+describe("Test Fakerjs Expr",()=>{
   it('should merge several fields', function () {
     const generateValueFn = FakeExpr("{{name.firstName}} {{name.lastName}}")()
     expect(generateValueFn()).toBe("Maurine Rath")
     expect(generateValueFn()).toBe("Edison Keebler")
   });
 })
+
+describe("Test FakeObject",()=>{
+  it('should generate different fake Object', function () {
+    const generateValueFn = FakeObject({
+      a:values(1,2),
+      b:values(3,4)
+    })()
+    expect(generateValueFn()).toStrictEqual({a:1,b:3})
+    expect(generateValueFn()).toStrictEqual({a:2,b:4})
+  });
+})
+

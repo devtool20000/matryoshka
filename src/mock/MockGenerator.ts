@@ -1,4 +1,6 @@
 import clonedeep from 'lodash.clonedeep';
+import {JsonTemplate} from "./ObjectUpdater";
+import {generateObject} from "./ObjectGenerator";
 
 
 export class MockGenerator<T> {
@@ -125,6 +127,18 @@ export function values<T>(...values:(T | GenerateValueFactory<T>)[]): (Generator
     return new MockGenerator(hardCodeValues,null).generatorFactory as any
   }
 
+}
+
+// TODO: currently use this temp implementation but can have performance issue when loading more data since we always need to reset and then use skip to load next value
+export function FakeObject(template:JsonTemplate) : GenerateValueFactory<any> {
+  return ()=> {
+    let cursor = 0
+    return ()=> {
+      const value =  generateObject(template,cursor)
+      cursor++
+      return value
+    }
+  }
 }
 
 

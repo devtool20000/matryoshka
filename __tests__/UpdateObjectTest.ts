@@ -6,7 +6,7 @@ import {
   updateObject,
   UpdateUpdater
 } from "../src/mock/ObjectUpdater";
-import {constantValues} from "../src/mock/MockGenerator";
+import {constantValues, FakeObject, values} from "../src/mock/MockGenerator";
 import {Fake} from "../src/mock/FakerField";
 
 describe("Test Add Fields",()=>{
@@ -111,6 +111,40 @@ describe("Test Add Fields",()=>{
     expect(target).toStrictEqual([{n:1,a:"Maurine",b:"Maurine"},{n:2,a:"Mervin",b:"Mervin"}])
   });
 
+  it('add object as values', function () {
+    const target:any = {
+      a:[{b:{}},{b:{}}]
+    }
+    new AddUpdater({
+      "a[].b":constantValues({c:1},{c:2})
+    }).updateObject(target)
+    expect(target).toStrictEqual({
+      "a":[
+        {b:{c:1}},
+        {b:{c:2}}
+      ]
+    })
+  });
+
+  it('add object as values + fakeObject', function () {
+    const target:any = {
+      a:[{b:{}},{b:{}},{b:{}},{b:{}},{b:{}}]
+    }
+    new AddUpdater({
+      "a[].b":values({c:1},{c:2},FakeObject({
+        c:values(4,6)
+      }))
+    }).updateObject(target)
+    expect(target).toStrictEqual({
+      "a":[
+        {b:{c:1}},
+        {b:{c:2}},
+        {b:{c:4}},
+        {b:{c:6}},
+        {b:{c:4}}
+      ]
+    })
+  });
 })
 
 
