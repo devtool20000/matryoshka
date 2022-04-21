@@ -1,3 +1,27 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -7,33 +31,38 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import express from 'express';
-import cors from 'cors';
-import axios from 'axios';
-import * as bodyParser from 'body-parser';
-import { Endpoint, DEFAULT_UPSTREAM, createDefaultProxyResponse } from "./Endpoint";
-import getPort, { portNumbers } from "get-port";
-export class ProxyServer {
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ProxyServer = void 0;
+const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
+const axios_1 = __importDefault(require("axios"));
+const bodyParser = __importStar(require("body-parser"));
+const Endpoint_1 = require("./Endpoint");
+const portfinder_1 = __importDefault(require("portfinder"));
+class ProxyServer {
     constructor(config) {
         this.config = config;
         this.endpoints = [];
         if (!config.upstreams) {
             config.upstreams = {};
         }
-        config.upstreams[DEFAULT_UPSTREAM] = config;
+        config.upstreams[Endpoint_1.DEFAULT_UPSTREAM] = config;
         this._validateConfig();
     }
     _validateConfig() {
         // make sure all proxies has non-empty proxyUrl
         for (let proxyName of Object.keys(this.config.upstreams)) {
-            if (!this.config.upstreams[proxyName].upstreamUrl && proxyName !== DEFAULT_UPSTREAM) {
+            if (!this.config.upstreams[proxyName].upstreamUrl && proxyName !== Endpoint_1.DEFAULT_UPSTREAM) {
                 throw new Error(`proxy ${proxyName} has empty proxyUrl`);
             }
             const proxyUrl = this.config.upstreams[proxyName].upstreamUrl;
             if (proxyUrl && proxyUrl.startsWith("localhost")) {
                 const completeProxyUrl = `http://${proxyUrl}`;
                 this.config.upstreams[proxyName].upstreamUrl = completeProxyUrl;
-                if (proxyName === DEFAULT_UPSTREAM) {
+                if (proxyName === Endpoint_1.DEFAULT_UPSTREAM) {
                     this.config.upstreamUrl = completeProxyUrl;
                 }
             }
@@ -45,7 +74,7 @@ export class ProxyServer {
     }
     updateEndPoint(path, method = null) {
         var _a;
-        const endpoint = new Endpoint(path, method);
+        const endpoint = new Endpoint_1.Endpoint(path, method);
         // add global removeResponseData
         if ((_a = this.config.default) === null || _a === void 0 ? void 0 : _a.notFoundResponseData) {
             endpoint.notFoundResponseData = Object.assign({}, this.config.default.notFoundResponseData);
@@ -62,8 +91,8 @@ export class ProxyServer {
     serve() {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            const app = express();
-            app.use(cors(this.config.cors));
+            const app = (0, express_1.default)();
+            app.use((0, cors_1.default)(this.config.cors));
             app.use(bodyParser.json({
                 limit: "100mb" //TODO: move this to config in the future
             }));
@@ -73,7 +102,10 @@ export class ProxyServer {
             this.createResponseMiddlewares(app);
             this.createFinalResponse(app);
             // start proxy server
-            const port = (_a = this.config.port) !== null && _a !== void 0 ? _a : yield getPort({ port: portNumbers(8080, 9999) });
+            const port = (_a = this.config.port) !== null && _a !== void 0 ? _a : yield portfinder_1.default.getPortPromise({
+                startPort: 8080,
+                stopPort: 9090
+            });
             this.startProxyServer(app, port);
         });
     }
@@ -111,12 +143,12 @@ export class ProxyServer {
             _ignoreHeaders(headers, ["host", "user-agent", "content-length"]);
             if (req.isEarlyReturn) {
                 // call early return
-                res.response = (_a = req.earlyReturnResponse) !== null && _a !== void 0 ? _a : createDefaultProxyResponse();
+                res.response = (_a = req.earlyReturnResponse) !== null && _a !== void 0 ? _a : (0, Endpoint_1.createDefaultProxyResponse)();
                 next();
             }
             else {
                 // call upstream server
-                const upStream = (_b = req.upStream) !== null && _b !== void 0 ? _b : DEFAULT_UPSTREAM;
+                const upStream = (_b = req.upStream) !== null && _b !== void 0 ? _b : Endpoint_1.DEFAULT_UPSTREAM;
                 const upStreamBaseUrl = this.config.upstreams[upStream].upstreamUrl;
                 if (!upStreamBaseUrl) {
                     throw new Error(`upStream: ${upStream} is has empty BaseUrl`);
@@ -129,7 +161,7 @@ export class ProxyServer {
                     data: req.body,
                 };
                 try {
-                    const response = yield axios.request(config);
+                    const response = yield axios_1.default.request(config);
                     copyExpressResponse(response, res, next);
                 }
                 catch (e) {
@@ -154,6 +186,7 @@ export class ProxyServer {
         });
     }
 }
+exports.ProxyServer = ProxyServer;
 function _ignoreHeaders(headers, ignoredHeaders) {
     for (let header of ignoredHeaders) {
         if (headers[header]) {

@@ -1,5 +1,8 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deepGet = exports.deepSet = void 0;
 const SPLIT_DOT_PATTERN = /[\.\[]/g;
-export function deepSet(obj, parts, value) {
+function deepSet(obj, parts, value) {
     // convert array access to parts
     if (!Array.isArray(parts)) {
         parts = parts.split(SPLIT_DOT_PATTERN).filter(part => part.length > 0).map((part) => {
@@ -59,7 +62,8 @@ export function deepSet(obj, parts, value) {
         delete obj[k];
     }
 }
-export function deepGet(obj, parts, defaultValue = null) {
+exports.deepSet = deepSet;
+function deepGet(obj, parts, defaultValue = null) {
     if (!Array.isArray(parts)) {
         parts = parts.split(SPLIT_DOT_PATTERN).filter(part => part.length > 0).map((part) => {
             if (part.endsWith("]")) {
@@ -108,6 +112,7 @@ export function deepGet(obj, parts, defaultValue = null) {
     }
     return obj ? (typeof obj[k] !== 'undefined' ? obj[k] : defaultValue) : defaultValue;
 }
+exports.deepGet = deepGet;
 function isGenerator(value) {
     return typeof value === "object" && typeof value.next == "function";
 }

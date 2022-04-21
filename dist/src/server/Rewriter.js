@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -7,47 +8,98 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { updateObject } from "../mock/ObjectUpdater";
-export function RewriteResponse(updates) {
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Break = exports.extractObject = exports.OriginalResponse = exports.From = exports.ExtractResponse = exports.RewriteHeader = exports.RewriteQuery = exports.RewriteBody = exports.OverrideStatus = exports.RewriteResponseHeader = exports.OverrideResponse = exports.RewriteResponse = void 0;
+const ObjectUpdater_1 = require("../mock/ObjectUpdater");
+const DeepOperation_1 = require("../utils/DeepOperation");
+const Flatten_1 = require("../utils/Flatten");
+function RewriteResponse(updates) {
     return (req, res) => {
-        updateObject(res.response.data, updates);
+        (0, ObjectUpdater_1.updateObject)(res.response.data, updates);
     };
 }
-export function OverrideResponse(obj) {
+exports.RewriteResponse = RewriteResponse;
+function OverrideResponse(obj) {
     return (req, res) => __awaiter(this, void 0, void 0, function* () {
         const result = typeof obj === "function" ? yield obj(req, res) : obj;
         res.response.data = result;
     });
 }
-export function RewriteResponseHeader(updates) {
+exports.OverrideResponse = OverrideResponse;
+function RewriteResponseHeader(updates) {
     return (req, res) => {
-        updateObject(res.response.headers, updates);
+        (0, ObjectUpdater_1.updateObject)(res.response.headers, updates);
     };
 }
-export function OverrideStatus(statusCode) {
+exports.RewriteResponseHeader = RewriteResponseHeader;
+function OverrideStatus(statusCode) {
     return (req, res) => {
         res.response.status = statusCode;
     };
 }
-export function RewriteBody(updates) {
+exports.OverrideStatus = OverrideStatus;
+function RewriteBody(updates) {
     return (req, res) => {
-        updateObject(req.body, updates);
+        (0, ObjectUpdater_1.updateObject)(req.body, updates);
     };
 }
-export function RewriteQuery(updates) {
+exports.RewriteBody = RewriteBody;
+function RewriteQuery(updates) {
     return (req, res) => {
-        updateObject(req.query, updates);
+        (0, ObjectUpdater_1.updateObject)(req.query, updates);
     };
 }
-export function RewriteHeader(updates) {
+exports.RewriteQuery = RewriteQuery;
+function RewriteHeader(updates) {
     const lowerKeyedUpdates = {};
     for (let key of Object.keys(updates)) {
         lowerKeyedUpdates[key] = lowerKey(updates[key], key === "rename");
     }
     return (req, res) => {
-        updateObject(req.headers, lowerKeyedUpdates);
+        (0, ObjectUpdater_1.updateObject)(req.headers, lowerKeyedUpdates);
     };
 }
+exports.RewriteHeader = RewriteHeader;
+function ExtractResponse(selector) {
+    return (req, res) => {
+        res.response.data = extractObject(res.response.data, selector);
+    };
+}
+exports.ExtractResponse = ExtractResponse;
+function From(selector, ...converters) {
+    return (obj) => {
+        let value = (0, DeepOperation_1.deepGet)(obj, selector);
+        for (let convertor of converters) {
+            value = convertor(value);
+        }
+        return value;
+    };
+}
+exports.From = From;
+const OriginalResponse = (obj) => obj;
+exports.OriginalResponse = OriginalResponse;
+function extractObject(obj, selector) {
+    if (typeof selector === "function") {
+        return selector(obj);
+    }
+    else if (typeof selector === "string") {
+        return (0, DeepOperation_1.deepGet)(obj, selector);
+    }
+    else {
+        const extractFns = (0, Flatten_1.flattenHierarchy)(selector);
+        const target = {};
+        for (let extract of extractFns) {
+            if (typeof extract.value === "string") {
+                (0, DeepOperation_1.deepSet)(target, extract.path, (0, DeepOperation_1.deepGet)(obj, extract.value));
+            }
+            else {
+                (0, DeepOperation_1.deepSet)(target, extract.path, extract.value(obj));
+            }
+        }
+        return target;
+    }
+}
+exports.extractObject = extractObject;
 function lowerKey(obj, isLowerValue = false) {
     const result = {};
     for (let key of Object.keys(obj)) {
@@ -59,4 +111,8 @@ function lowerKey(obj, isLowerValue = false) {
     }
     return result;
 }
+const Break = (req, res, next) => {
+    next();
+};
+exports.Break = Break;
 //# sourceMappingURL=Rewriter.js.map

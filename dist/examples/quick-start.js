@@ -1,5 +1,7 @@
-import { ProxyServer } from '../index';
-const server = new ProxyServer({
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const index_1 = require("../index");
+const server = new index_1.ProxyServer({
     upstreamUrl: "http://localhost:3000",
     port: 8080
 });

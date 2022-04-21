@@ -1,4 +1,4 @@
-import express from "express";
+import express, { NextFunction } from "express";
 import { AxiosResponseHeaders } from "axios";
 import { ConditionMatcher } from "./ConditionMatcher";
 export declare class Endpoint implements MiddlewareFactory {
@@ -37,7 +37,7 @@ export declare function createDefaultProxyResponse(): {
     data: any;
     headers: any;
 };
-export declare type Rewriter = (req: express.Request, res: ProxyResponse) => (Promise<void> | void);
+export declare type Rewriter = (req: express.Request, res: ProxyResponse, next: NextFunction) => (Promise<void> | void);
 export declare type RewriteCondition = RewriteConditionFn | ConditionMatcher;
 export declare type RewriteConditionFn = (req: ProxyRequest, res: ProxyResponse) => (Promise<boolean> | boolean);
 export declare type Plugin<T> = (host: T) => void;

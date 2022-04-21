@@ -1,5 +1,12 @@
-import clonedeep from 'lodash.clonedeep';
-export class MockGenerator {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.hasVariable = exports.GeneratorType = exports.FakeObject = exports.values = exports.constantValues = exports.MockGenerator = void 0;
+const lodash_clonedeep_1 = __importDefault(require("lodash.clonedeep"));
+const ObjectGenerator_1 = require("./ObjectGenerator");
+class MockGenerator {
     constructor(values = [], generateValueFactory = null) {
         this.values = [];
         this.values = values;
@@ -56,7 +63,8 @@ export class MockGenerator {
         };
     }
 }
-export function constantValues(...values) {
+exports.MockGenerator = MockGenerator;
+function constantValues(...values) {
     if (values.length === 0) {
         throw new Error(`values can't be empty array`);
     }
@@ -69,7 +77,8 @@ export function constantValues(...values) {
         return new MockGenerator(values, null).generatorFactory;
     }
 }
-export function values(...values) {
+exports.constantValues = constantValues;
+function values(...values) {
     if (values.length === 0) {
         throw new Error(`values can't be empty array`);
     }
@@ -80,7 +89,7 @@ export function values(...values) {
             if (hasVariable(hardCodeValue)) {
                 // return replace variable values
                 const variableGeneratorFactory = (variables) => {
-                    const replacedHardCodeValues = clonedeep(hardCodeValues);
+                    const replacedHardCodeValues = (0, lodash_clonedeep_1.default)(hardCodeValues);
                     for (let variableName of Object.keys(variables)) {
                         const variableValue = variables[variableName];
                         for (let i = 0; i < replacedHardCodeValues.length; i++) {
@@ -95,7 +104,7 @@ export function values(...values) {
                         return new MockGenerator(replacedHardCodeValues, null).generatorFactory;
                     }
                 };
-                variableGeneratorFactory.$type = GeneratorType.variableGenerator;
+                variableGeneratorFactory.$type = exports.GeneratorType.variableGenerator;
                 return variableGeneratorFactory;
             }
         }
@@ -107,10 +116,24 @@ export function values(...values) {
         return new MockGenerator(hardCodeValues, null).generatorFactory;
     }
 }
-export const GeneratorType = {
+exports.values = values;
+// TODO: currently use this temp implementation but can have performance issue when loading more data since we always need to reset and then use skip to load next value
+function FakeObject(template) {
+    return () => {
+        let cursor = 0;
+        return () => {
+            const value = (0, ObjectGenerator_1.generateObject)(template, cursor);
+            cursor++;
+            return value;
+        };
+    };
+}
+exports.FakeObject = FakeObject;
+exports.GeneratorType = {
     variableGenerator: "variable-generator"
 };
-export function hasVariable(text) {
+function hasVariable(text) {
     return text.indexOf("{{") !== -1 && text.indexOf("}}") !== -1;
 }
+exports.hasVariable = hasVariable;
 //# sourceMappingURL=MockGenerator.js.map
