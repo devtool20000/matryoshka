@@ -57,6 +57,14 @@ class ProxyServer {
             if (!this.config.proxies[proxyName].proxyUrl && proxyName !== Endpoint_1.DEFAULT_UPSTREAM) {
                 throw new Error(`proxy ${proxyName} has empty proxyUrl`);
             }
+            const proxyUrl = this.config.proxies[proxyName].proxyUrl;
+            if (proxyUrl && proxyUrl.startsWith("localhost")) {
+                const completeProxyUrl = `http://${proxyUrl}`;
+                this.config.proxies[proxyName].proxyUrl = completeProxyUrl;
+                if (proxyName === Endpoint_1.DEFAULT_UPSTREAM) {
+                    this.config.proxyUrl = completeProxyUrl;
+                }
+            }
         }
     }
     addEndPoint(path, method, defaultResponseData = null) {

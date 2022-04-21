@@ -8,10 +8,11 @@ const Generator_1 = require("../src/server/Generator");
 const FakerField_1 = require("../src/mock/FakerField");
 const ObjectGenerator_1 = require("../src/mock/ObjectGenerator");
 const config = {
-    proxyUrl: "http://localhost:8000",
+    proxyUrl: "localhost:3000",
+    port: 8081,
     proxies: {
         json: {
-            proxyUrl: "http://localhost:3000"
+            proxyUrl: "http://localhost:8000"
         }
     }
 };
@@ -19,9 +20,10 @@ const server = new Server_1.ProxyServer(config);
 server.addEndPoint("some", "GET", { data: { abc: 1 } })
     .when((0, HttpMatcher_1.Query)("test", 1), (0, Rewriter_1.OverrideResponse)({ test: 1 }))
     .when((0, HttpMatcher_1.Query)("test", 2), (0, Rewriter_1.OverrideResponse)({ test2: 2 }));
-server.proxy("posts").from("json");
-server.updateEndPoint("posts/:id", "GET").from("json")
-    .renameTo("test/:id", "GET");
+server.proxy("posts");
+// .from("json")
+// server.updateEndPoint("posts/:id","GET").from("json")
+//   .renameTo("test/:id","GET")
 function PaginationTemplate(template) {
     return (req, res) => {
         const offset = req.query.start_key ? Number(req.query.start_key) : 0;
