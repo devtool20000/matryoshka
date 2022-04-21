@@ -75,4 +75,19 @@ Matryoshka tries to encourage you to reuse these wonderful projects by providing
 With such mechanism, you can quickly create the desired mock API server on your local computer without any communication cost with your backend teams.
 
 
+### Extendable
+* Matryoshka provides low-level mechanism to help you customize the Declarative
+API with trivial coding. For instance, you API might has extra logic for evaluating
+  whether response is successful other than just status code 200
+```js
 
+const ResponseSuccess = Status((code)=>code < 300).and(Response("status","some_success_code"))
+
+server.updateEndPoint("test")
+        .when(ResponseSuccess,
+                RewriteResponse(...)
+        )
+
+```  
+
+More extension topic can be seen from [Extension Guide](Extension-Guide.md)

@@ -86,7 +86,7 @@ function PaginationTemplate(template:JsonTemplate):CreateResponse{
 
 
 server.addEndPoint("some2","GET")
-  .when(Query("name",1),
+  .when(Status((code)=>code < 300).and(Response("status","some_success_code")),
     OverrideResponse(Template({
       "result": {
       },
