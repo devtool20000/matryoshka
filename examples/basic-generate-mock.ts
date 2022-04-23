@@ -1,4 +1,5 @@
 import {
+  Add,
   Fake, FakeExpr,
   OverrideResponse,
   ProxyServer, RewriteResponse,
@@ -41,16 +42,16 @@ server.updateEndPoint("posts","GET")
   .proxy()
   // generate mock data
   .response(
-    RewriteResponse({
-      add:{
+    RewriteResponse(
+      Add({
         "[]":{
           newField:values(1,2,3),
           "nestArray[+3]":{
             name:Fake("name.firstName")
           }
         }
-      }
-    })
+      })
+    )
   )
 
 // server running

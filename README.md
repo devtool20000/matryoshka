@@ -79,83 +79,74 @@ server.serve()
 ### Rewrite request and response
 
 ```js
-...
 
 server.updateEndPoint("posts","GET")
-  // rewrite request
-  .request(
-    // update query
-    // when you call      http://localhost:8080/posts?page=2&page_size=2&new_name=value
-    // it will convert to http://localhost:3000/posts?_page=2&_limit=2&old_name=value
-    RewriteQuery({
-      // rename query parameters
-      rename:{
-        "page":"_page",
-        "page_size":"_limit",
-        "new_name":"old_name"
-      }
-    }),
-    // update body
-    RewriteBody({
-      rename:{
-        "new_name":"old_name",
-        "field1":{
-          "field2":"old_name2" // nested field
-        }
-      },
-      // update body parameters
-      update:{
-        "field3.field4": "new value", // set new value
-        "field5.field6": (currentValue:number)=>currentValue * 2, // set new value according to current value
-      }
-    }),
-    RewriteHeader({
-      add:{
-        "New-Header":"some value" // add new header
-      }
-    })
-  )
-  .proxy() // call upstream
-  .response(
-    // rewrite response
-    RewriteResponse({
-      add:{
-        "[].new_field":"new_value" // add new field on every item inside array
-      }
-    }),
-    // rewrite return status code
-    OverrideStatus(201),
-    // rewrite response header
-    RewriteResponseHeader({
-      remove:{
-        vary:true
-      }
-    })
-  )
+        // rewrite request
+        .request(
+                // update query
+                // when you call      http://localhost:8080/posts?page=2&page_size=2&new_name=value
+                // it will convert to http://localhost:3000/posts?_page=2&_limit=2&old_name=value
+                RewriteQuery(
+                        Rename({
+                           "page":"_page",
+                           "page_size":"_limit",
+                           "new_name":"old_name"
+                        })
+                ),
+                // update body
+                RewriteBody(
+                        Rename({
+                           "new_name":"old_name",
+                           "field1":{
+                              "field2":"old_name2" // nested field
+                           }
+                        }),
+                        Update({
+                           "field3.field4": "new value", // set new value
+                           "field5.field6": (currentValue:number)=>currentValue * 2, // set new value according to current value
+                        })
+                ),
+                RewriteHeader(
+                        Add({
+                           "new-header":"some value" // add new header
+                        })
+                )
+        )
+        .proxy() // call upstream
+        .response(
+                // rewrite response
+                RewriteResponse(
+                        Add({
+                           "[].new_field":"new_value" // add new field on every item inside array
+                        })
+                ),
+                // rewrite return status code
+                OverrideStatus(201),
+                // rewrite response header
+                RewriteResponseHeader(
+                        Remove("vary")
+                )
+        )
 
-...
 ```
 
 ### Conditional rewrite
 ```js
 
 server.updateEndPoint("posts","GET")
+        // rewrite response only when status code is 200
         .proxy()
         // when status code is 200
         .when(Status(200),
-                RewriteResponse({
-                   add:{
-                      "[].new_field":"new_value" // add new field on every item inside array
-                   }
-                })
+                RewriteResponse(
+                        Add("[].new_field","new_value") // add new field on every item inside array
+                )
         )
         // when status code is not 200
         .when(not(Status(200)),
-                RewriteResponse({
-                   add:{
-                      "error":"some error message"
-                   }
-                })
+                RewriteResponse(
+                        Add("error","some error message")
+                )
         )
 
 
@@ -238,20 +229,21 @@ You can also use template to add new fields to existing API's response
 ```js
 // use updateEndPoint to update existing API
 server.updateEndPoint("posts","GET")
-  .proxy()
-  // generate mock data
-  .response(
-    RewriteResponse({
-      add:{
-        "[]":{
-          newField:values(1,2,3),
-          "nestArray[+3]":{ // you can add array with item count 3
-            name:Fake("name.firstName") // add field can be nested
-          }
-        }
-      }
-    })
-  )
+        .proxy()
+        // generate mock data
+        .response(
+                RewriteResponse(
+                        Add({
+                           "[]":{
+                              newField:values(1,2,3),
+                              "nestArray[+3]":{
+                                 name:Fake("name.firstName")
+                              }
+                           }
+                        })
+                )
+        )
+
 ```
 this will update 
 ```json
@@ -291,7 +283,7 @@ to
 ### Connect to multiple proxy servers
 
 ```js
-...
+
 const server = new ProxyServer({
    upstreamUrl:"http://localhost:3000",
    port:8080,
@@ -310,7 +302,7 @@ server.proxy("posts")
 server.proxy("comments").from("server2") // specify the name of upstream server
         .renameTo("server2-comments") // you can try http://localhost:8080/server2-comments
 
-...
+
 ```
 
 TODO: 

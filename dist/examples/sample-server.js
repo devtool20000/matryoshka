@@ -5,6 +5,7 @@ const MockGenerator_1 = require("../src/mock/MockGenerator");
 const ConditionMatcher_1 = require("../src/server/ConditionMatcher");
 const HttpMatcher_1 = require("../src/server/HttpMatcher");
 const Rewriter_1 = require("../src/server/Rewriter");
+const ObjectUpdater_1 = require("../src/mock/ObjectUpdater");
 const Generator_1 = require("../src/server/Generator");
 const FakerField_1 = require("../src/mock/FakerField");
 const ObjectGenerator_1 = require("../src/mock/ObjectGenerator");
@@ -21,11 +22,7 @@ const server = new Server_1.ProxyServer(config);
 server.addEndPoint("some", "GET", { data: { abc: 1 } })
     .when((0, HttpMatcher_1.Query)("test", 1), (0, Rewriter_1.OverrideResponse)({ test: 1 }), Rewriter_1.Break)
     .when((0, HttpMatcher_1.Query)("test", 2), (0, Rewriter_1.OverrideResponse)({ test2: 2 }), Rewriter_1.Break)
-    .response((0, Rewriter_1.RewriteResponse)({
-    add: {
-        final: 1
-    }
-}));
+    .response((0, Rewriter_1.RewriteResponse)((0, ObjectUpdater_1.Add)("final", 1)));
 server.addEndPoint("t2", "GET")
     .response((0, Rewriter_1.OverrideResponse)({
     result_code: 2003,
@@ -37,11 +34,7 @@ server.addEndPoint("t2", "GET")
     }
 }), (0, Rewriter_1.ExtractResponse)({
     data: (0, Rewriter_1.From)("hits.data")
-}), (0, Rewriter_1.RewriteResponse)({
-    add: {
-        "data[].b": (0, MockGenerator_1.values)(1, 2)
-    }
-}));
+}), (0, Rewriter_1.RewriteResponse)((0, ObjectUpdater_1.Add)("data[].b", (0, MockGenerator_1.values)(1, 2))));
 server.proxy("posts");
 // .from("json")
 // server.updateEndPoint("posts/:id","GET").from("json")

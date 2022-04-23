@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.normalizeUpdateUnitValue = exports.updateObject = exports.RenameUpdater = exports.MoveUpdater = exports.RemoveUpdater = exports.UpdateUpdater = exports.AddUpdater = void 0;
+exports.normalizeUpdateUnitValue = exports.Update = exports.Move = exports.Rename = exports.Remove = exports.Add = exports.updateObject = exports.RenameUpdater = exports.MoveUpdater = exports.RemoveUpdater = exports.UpdateUpdater = exports.AddUpdater = void 0;
 const MockGenerator_1 = require("./MockGenerator");
 const DeepOperation_1 = require("../utils/DeepOperation");
 const Flatten_1 = require("../utils/Flatten");
@@ -72,7 +72,8 @@ class MoveUpdater extends GeneralUpdater {
         for (let updateFn of this.updateUnits) {
             if (typeof updateFn.value === "string") {
                 const newPath = updateFn.value;
-                const existingValues = (0, DeepOperation_1.deepGet)(obj, updateFn.path);
+                let existingValues = (0, DeepOperation_1.deepGet)(obj, updateFn.path);
+                existingValues = Array.isArray(existingValues) ? existingValues : [existingValues];
                 (0, DeepOperation_1.deepSet)(obj, newPath, ((0, MockGenerator_1.constantValues)(...existingValues))(0));
                 (0, DeepOperation_1.deepSet)(obj, updateFn.path, undefined);
             }
@@ -99,14 +100,104 @@ class RenameUpdater extends GeneralUpdater {
     }
 }
 exports.RenameUpdater = RenameUpdater;
-function updateObject(obj, toUpdate, skip = 0) {
-    new RenameUpdater(toUpdate.rename).updateObject(obj, skip);
-    new MoveUpdater(toUpdate.move).updateObject(obj, skip);
-    new RemoveUpdater(toUpdate.remove).updateObject(obj, skip);
-    new AddUpdater(toUpdate.add).updateObject(obj, skip);
-    new UpdateUpdater(toUpdate.update).updateObject(obj, skip);
+function updateObject(...objs) {
+    let obj = objs[0];
+    let skip = 0;
+    let updates = objs.slice(1);
+    if (typeof objs[1] === "number") {
+        skip = objs[1];
+        updates = objs.slice(2);
+    }
+    for (let updateFn of updates) {
+        obj = updateFn(obj, skip);
+    }
+    return obj;
 }
 exports.updateObject = updateObject;
+function Add(jsonTemplate, value) {
+    let template = jsonTemplate;
+    if (typeof jsonTemplate === "string") {
+        template = {
+            [jsonTemplate]: value
+        };
+    }
+    return (obj, skip) => {
+        if (!skip) {
+            skip = 0;
+        }
+        new AddUpdater(template).updateObject(obj, skip);
+        return obj;
+    };
+}
+exports.Add = Add;
+function Remove(...jsonTemplate) {
+    let template = jsonTemplate;
+    if (Array.isArray(jsonTemplate) && typeof jsonTemplate[0] === "string") {
+        template = {};
+        for (let fieldToRemove of jsonTemplate) {
+            template[fieldToRemove] = true;
+        }
+    }
+    else {
+        template = template[0];
+    }
+    return (obj, skip) => {
+        if (!skip) {
+            skip = 0;
+        }
+        new RemoveUpdater(template).updateObject(obj, skip);
+        return obj;
+    };
+}
+exports.Remove = Remove;
+function Rename(jsonTemplate, value) {
+    let template = jsonTemplate;
+    if (typeof jsonTemplate === "string") {
+        template = {
+            [jsonTemplate]: value
+        };
+    }
+    return (obj, skip) => {
+        if (!skip) {
+            skip = 0;
+        }
+        new RenameUpdater(template).updateObject(obj, skip);
+        return obj;
+    };
+}
+exports.Rename = Rename;
+function Move(jsonTemplate, value) {
+    let template = jsonTemplate;
+    if (typeof jsonTemplate === "string") {
+        template = {
+            [jsonTemplate]: value
+        };
+    }
+    return (obj, skip) => {
+        if (!skip) {
+            skip = 0;
+        }
+        new MoveUpdater(template).updateObject(obj, skip);
+        return obj;
+    };
+}
+exports.Move = Move;
+function Update(jsonTemplate, value) {
+    let template = jsonTemplate;
+    if (typeof jsonTemplate === "string") {
+        template = {
+            [jsonTemplate]: value
+        };
+    }
+    return (obj, skip) => {
+        if (!skip) {
+            skip = 0;
+        }
+        new UpdateUpdater(template).updateObject(obj, skip);
+        return obj;
+    };
+}
+exports.Update = Update;
 function normalizeUpdateUnitValue(updateUnit, variables = {}) {
     // TODO: this is a ugly fix which avoid issue in generate template
     // we use this to detect const value with variable

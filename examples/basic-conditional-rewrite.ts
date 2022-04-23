@@ -1,4 +1,5 @@
 import {
+  Add,
   not,
   OverrideStatus,
   ProxyServer,
@@ -19,19 +20,15 @@ server.updateEndPoint("posts","GET")
   .proxy()
   // when status code is 200
   .when(Status(200),
-    RewriteResponse({
-      add:{
-        "[].new_field":"new_value" // add new field on every item inside array
-      }
-    })
+    RewriteResponse(
+      Add("[].new_field","new_value") // add new field on every item inside array
+    )
   )
   // when status code is not 200
   .when(not(Status(200)),
-    RewriteResponse({
-      add:{
-        "error":"some error message"
-      }
-    })
+    RewriteResponse(
+      Add("error","some error message")
+    )
   )
 
 // server running

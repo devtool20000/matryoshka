@@ -33,29 +33,29 @@ server.updateEndPoint("posts","GET")
   // rewrite response only when status code is 200
   .request(
     // posts?page_size&page => posts?size&offset
-    RewriteQuery({
-      rename:{
+    RewriteQuery(
+      Rename({
         page_size:"size",
         page:"offset"
-      }
-    })
+      })
+    )
   )
   .proxy()
   // when status code is 200 add new fields with new_value
   .when(Status(200),
-    RewriteResponse({
-      add:{
+    RewriteResponse(
+      Add({
         "[].new_field":"new_value" // add new field on every item inside array
-      }
-    })
+      })
+    )
   )
   // when status code is not 200, add new error message
   .when(not(Status(200)),
-    RewriteResponse({
-      add:{
+    RewriteResponse(
+      Add({
         "error":"some error message"
-      }
-    })
+      })
+    )
   )
 
 ```

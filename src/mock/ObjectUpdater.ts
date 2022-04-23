@@ -7,6 +7,8 @@ import {
 } from "./MockGenerator";
 import {deepGet, deepSet} from "../utils/DeepOperation";
 import {flattenHierarchy} from "../utils/Flatten";
+import {Rewriter} from "../server/Endpoint";
+import {RewriteFn} from "../server/Rewriter";
 
 export interface ObjectUpdate {
   move?: JsonTemplate, // for absolute
@@ -115,7 +117,8 @@ export class MoveUpdater extends GeneralUpdater {
     for (let updateFn of this.updateUnits) {
       if(typeof updateFn.value === "string"){
         const newPath = updateFn.value
-        const existingValues = deepGet(obj,updateFn.path)
+        let existingValues = deepGet(obj,updateFn.path)
+        existingValues = Array.isArray(existingValues) ? existingValues : [existingValues]
         deepSet(obj,newPath,(constantValues(...existingValues))(0))
         deepSet(obj,updateFn.path,undefined)
       }
@@ -142,13 +145,128 @@ export class RenameUpdater extends GeneralUpdater {
   }
 }
 
-export function updateObject(obj:any,toUpdate:ObjectUpdate,skip:number = 0){
-  new RenameUpdater(toUpdate.rename).updateObject(obj,skip)
-  new MoveUpdater(toUpdate.move).updateObject(obj,skip)
-  new RemoveUpdater(toUpdate.remove).updateObject(obj,skip)
-  new AddUpdater(toUpdate.add).updateObject(obj,skip)
-  new UpdateUpdater(toUpdate.update).updateObject(obj,skip)
+// export function updateObject(obj:any,toUpdate:ObjectUpdate,skip:number = 0){
+//   new RenameUpdater(toUpdate.rename).updateObject(obj,skip)
+//   new MoveUpdater(toUpdate.move).updateObject(obj,skip)
+//   new RemoveUpdater(toUpdate.remove).updateObject(obj,skip)
+//   new AddUpdater(toUpdate.add).updateObject(obj,skip)
+//   new UpdateUpdater(toUpdate.update).updateObject(obj,skip)
+// }
+
+export function updateObject(obj:any,...updates:RewriteFn[]):any;
+export function updateObject(obj:any,skip:number,...updates:RewriteFn[]):any;
+export function updateObject(...objs:any[]):any {
+  let obj = objs[0]
+  let skip = 0
+  let updates:RewriteFn[] = objs.slice(1)
+  if(typeof objs[1] === "number"){
+    skip = objs[1]
+    updates = objs.slice(2)
+  }
+  for(let updateFn of updates){
+    obj = updateFn(obj,skip)
+  }
+  return obj
 }
+
+
+export function Add(name:string, value:UpdateMetaValue):RewriteFn;
+export function Add(jsonTemplate:JsonTemplate): RewriteFn;
+export function Add(jsonTemplate:JsonTemplate | string,value?:any): RewriteFn{
+  let template = jsonTemplate
+  if(typeof jsonTemplate === "string"){
+    template = {
+      [jsonTemplate]:value
+    }
+  }
+  return (obj, skip)=>{
+    if(!skip){
+      skip = 0
+    }
+    new AddUpdater(template as any).updateObject(obj, skip)
+    return obj
+  }
+}
+
+export function Remove(...names:string[]):RewriteFn;
+export function Remove(jsonTemplate:JsonTemplate): RewriteFn;
+export function Remove(...jsonTemplate:any[]): RewriteFn{
+  let template:any = jsonTemplate
+  if(Array.isArray(jsonTemplate) && typeof jsonTemplate[0] === "string"){
+    template = {}
+    for(let fieldToRemove of jsonTemplate){
+      template[fieldToRemove] = true
+    }
+  }
+  else {
+    template = template[0]
+  }
+  return (obj,skip)=>{
+    if(!skip){
+      skip = 0
+    }
+    new RemoveUpdater(template).updateObject(obj,skip)
+    return obj
+  }
+}
+
+export function Rename(name:string, value:string):RewriteFn;
+export function Rename(jsonTemplate:JsonTemplate): RewriteFn;
+export function Rename(jsonTemplate:JsonTemplate | string,value?:any): RewriteFn{
+  let template = jsonTemplate
+  if(typeof jsonTemplate === "string"){
+    template = {
+      [jsonTemplate]:value
+    }
+  }
+  return (obj, skip)=>{
+    if(!skip){
+      skip = 0
+    }
+    new RenameUpdater(template as any).updateObject(obj, skip)
+    return obj
+  }
+}
+
+
+export function Move(from:string, to:string):RewriteFn;
+export function Move(jsonTemplate:JsonTemplate): RewriteFn;
+export function Move(jsonTemplate:JsonTemplate | string,value?:any): RewriteFn{
+  let template = jsonTemplate
+  if(typeof jsonTemplate === "string"){
+    template = {
+      [jsonTemplate]:value
+    }
+  }
+  return (obj, skip)=>{
+    if(!skip){
+      skip = 0
+    }
+    new MoveUpdater(template as any).updateObject(obj, skip)
+    return obj
+  }
+}
+
+export function Update(name:string, value:UpdateMetaValue):RewriteFn;
+export function Update(jsonTemplate:JsonTemplate): RewriteFn;
+export function Update(jsonTemplate:JsonTemplate | string,value?:any): RewriteFn{
+  let template = jsonTemplate
+  if(typeof jsonTemplate === "string"){
+    template = {
+      [jsonTemplate]:value
+    }
+  }
+  return (obj, skip)=>{
+    if(!skip){
+      skip = 0
+    }
+    new UpdateUpdater(template as any).updateObject(obj, skip)
+    return obj
+  }
+}
+
+
+
 
 export function normalizeUpdateUnitValue(updateUnit:UpdateUnit, variables:Record<string, any> = {}): { path: string, generatorFactory: GeneratorFactory<any> }{
   // TODO: this is a ugly fix which avoid issue in generate template

@@ -63,12 +63,12 @@ server.addEndPoint("t2","GET")
       data: From("hits.data")
     }),
     RewriteResponse(
-      Add("data[].b", values(1,2))
+      Add("data[].b",values(1,2))
     )
   )
 
 server.proxy("posts")
-  // .from("json")
+// .from("json")
 // server.updateEndPoint("posts/:id","GET").from("json")
 //   .renameTo("test/:id","GET")
 

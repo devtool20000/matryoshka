@@ -13,9 +13,14 @@ exports.Break = exports.extractObject = exports.OriginalResponse = exports.From 
 const ObjectUpdater_1 = require("../mock/ObjectUpdater");
 const DeepOperation_1 = require("../utils/DeepOperation");
 const Flatten_1 = require("../utils/Flatten");
-function RewriteResponse(updates) {
+// export function RewriteResponse(updates:ObjectUpdate):Rewriter {
+//   return (req,res) =>{
+//     updateObject(res.response.data,updates)
+//   }
+// }
+function RewriteResponse(...updates) {
     return (req, res) => {
-        (0, ObjectUpdater_1.updateObject)(res.response.data, updates);
+        res.response.data = (0, ObjectUpdater_1.updateObject)(res.response.data, ...updates);
     };
 }
 exports.RewriteResponse = RewriteResponse;
@@ -26,9 +31,9 @@ function OverrideResponse(obj) {
     });
 }
 exports.OverrideResponse = OverrideResponse;
-function RewriteResponseHeader(updates) {
+function RewriteResponseHeader(...updates) {
     return (req, res) => {
-        (0, ObjectUpdater_1.updateObject)(res.response.headers, updates);
+        (0, ObjectUpdater_1.updateObject)(res.response.headers, ...updates);
     };
 }
 exports.RewriteResponseHeader = RewriteResponseHeader;
@@ -38,25 +43,21 @@ function OverrideStatus(statusCode) {
     };
 }
 exports.OverrideStatus = OverrideStatus;
-function RewriteBody(updates) {
+function RewriteBody(...updates) {
     return (req, res) => {
-        (0, ObjectUpdater_1.updateObject)(req.body, updates);
+        (0, ObjectUpdater_1.updateObject)(req.body, ...updates);
     };
 }
 exports.RewriteBody = RewriteBody;
-function RewriteQuery(updates) {
+function RewriteQuery(...updates) {
     return (req, res) => {
-        (0, ObjectUpdater_1.updateObject)(req.query, updates);
+        (0, ObjectUpdater_1.updateObject)(req.query, ...updates);
     };
 }
 exports.RewriteQuery = RewriteQuery;
-function RewriteHeader(updates) {
-    const lowerKeyedUpdates = {};
-    for (let key of Object.keys(updates)) {
-        lowerKeyedUpdates[key] = lowerKey(updates[key], key === "rename");
-    }
+function RewriteHeader(...updates) {
     return (req, res) => {
-        (0, ObjectUpdater_1.updateObject)(req.headers, lowerKeyedUpdates);
+        (0, ObjectUpdater_1.updateObject)(req.headers, ...updates);
     };
 }
 exports.RewriteHeader = RewriteHeader;
@@ -100,7 +101,7 @@ function extractObject(obj, selector) {
     }
 }
 exports.extractObject = extractObject;
-function lowerKey(obj, isLowerValue = false) {
+function lowerKey(obj, isLowerValue = true) {
     const result = {};
     for (let key of Object.keys(obj)) {
         let value = obj[key];

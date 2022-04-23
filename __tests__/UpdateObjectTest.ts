@@ -1,8 +1,9 @@
 import {
-  AddUpdater,
-  MoveUpdater,
-  RemoveUpdater,
-  RenameUpdater,
+  Add,
+  AddUpdater, Move,
+  MoveUpdater, Remove,
+  RemoveUpdater, Rename,
+  RenameUpdater, Update,
   updateObject,
   UpdateUpdater
 } from "../src/mock/ObjectUpdater";
@@ -242,6 +243,165 @@ describe("Test Rename Fields",()=>{
 })
 
 describe("Test updateObject",()=>{
+
+  it('test target update single', function () {
+    const target = {
+      a:1
+    }
+
+    updateObject(target,
+      Update("a",2)
+    )
+
+    expect(target).toStrictEqual({
+      a:2
+    })
+  });
+
+  it('test target update multiple', function () {
+    const target = {
+      a:1,
+      b:2
+    }
+
+    updateObject(target,
+      Update({
+        a:2,
+        b:3
+      })
+    )
+
+    expect(target).toStrictEqual({
+      a:2,
+      b:3
+    })
+  });
+
+  it('test target add single', function () {
+    const target = {
+
+    }
+
+    updateObject(target,
+      Add("a",2)
+    )
+
+    expect(target).toStrictEqual({
+      a:2
+    })
+  });
+
+  it('test target add multiple', function () {
+    const target = {
+    }
+
+    updateObject(target,
+      Add({
+        a:2,
+        b:3
+      })
+    )
+
+    expect(target).toStrictEqual({
+      a:2,
+      b:3
+    })
+  });
+
+  it('test target remove names', function () {
+    const target = {
+      a:1,
+      b:2,
+      c:3
+    }
+
+    updateObject(target,
+      Remove("b","c")
+    )
+
+    expect(target).toStrictEqual({
+      a:1
+    })
+  });
+
+  it('test target remove jsonTemplate', function () {
+    const target = {
+      a:1,
+      b:2
+    }
+
+    updateObject(target,
+      Remove({
+        a:true,
+        b:true
+      })
+    )
+
+    expect(target).toStrictEqual({})
+  });
+
+  it('test target rename names', function () {
+    const target = {
+      old:1
+    }
+
+    updateObject(target,
+      Rename("old","new")
+    )
+
+    expect(target).toStrictEqual({
+      new:1
+    })
+  });
+
+  it('test target rename jsonTemplate', function () {
+    const target = {
+      old:1
+    }
+
+    updateObject(target,
+      Rename({
+        "old":"new"
+      })
+    )
+
+    expect(target).toStrictEqual({
+      new:1
+    })
+  });
+
+  it('test target move names', function () {
+    const target = {
+      old:1
+    }
+
+    updateObject(target,
+      Move("old","new")
+    )
+
+    expect(target).toStrictEqual({
+      new:1
+    })
+  });
+
+  it('test target move jsonTemplate', function () {
+    const target = {
+      old:1
+    }
+
+    updateObject(target,
+      Move({
+        "old":"new"
+      })
+    )
+
+    expect(target).toStrictEqual({
+      new:1
+    })
+  });
+
+
+
   it('test all', function () {
     const target:any  = [
       {
@@ -258,23 +418,31 @@ describe("Test updateObject",()=>{
       }
     ]
 
-    updateObject(target,{
-      update:{
-        "[].update":(x:any)=>x*2
-      },
-      remove:{
-        "[].remove":true
-      },
-      move:{
-        "[].move":"[].inner.field"
-      },
-      rename:{
-        "[].rename":"new"
-      },
-      add:{
-        "[].name":constantValues(1,2)
-      }
-    })
+    updateObject(target,
+      Update("[].update",(x:any)=>x*2),
+      Remove("[].remove"),
+      Move("[].move","[].inner.field"),
+      Rename("[].rename","new"),
+      Add("[].name",constantValues(1,2))
+    )
+
+    // updateObject(target,{
+    //   update:{
+    //     "[].update":(x:any)=>x*2
+    //   },
+    //   remove:{
+    //     "[].remove":true
+    //   },
+    //   move:{
+    //     "[].move":"[].inner.field"
+    //   },
+    //   rename:{
+    //     "[].rename":"new"
+    //   },
+    //   add:{
+    //     "[].name":constantValues(1,2)
+    //   }
+    // })
 
     expect(target).toStrictEqual([
       {
