@@ -118,10 +118,10 @@ export class Endpoint implements MiddlewareFactory {
     }
 
     if(!this.notFoundResponseData.status){
-      this.notFoundResponseData.status = 404
+      this.notFoundResponseData.status = 405
     }
     if(!this.notFoundResponseData.data){
-      this.notFoundResponseData.data = DEFAULT_404_BODY
+      this.notFoundResponseData.data = DEFAULT_405_BODY
     }
     return this
   }
@@ -241,7 +241,7 @@ function _mergeSequentialRewriter(rewriters:Rewriter[]):Rewriter{
 }
 
 
-const DEFAULT_404_BODY = {
+const DEFAULT_405_BODY = {
   isProxy:true,
   error:"Method Not Found"
 }
